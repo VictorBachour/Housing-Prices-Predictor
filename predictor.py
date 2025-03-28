@@ -10,13 +10,23 @@ data = pd.read_csv('Housing.csv')
 
 x = data.drop(columns=['price'])
 y = data['price']
+x = pd.get_dummies(x, drop_first=True)
+
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.02, random_state=42)
 
 scaler = StandardScaler()
-x_scaled = scaler.fit_transform(x)
 
-X_train, X_test, y_train, y_test = train_test_split(x_scaled, y, test_size=.02, random_state=42)
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
+model = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
 
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
 
-
-model = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+print(f"MAE: {mae}")
+print(f"MSE: {mse}")
+print(f"R² Score: {r2}")
